@@ -1,99 +1,136 @@
-import React from 'react';
-import { render } from 'react-dom';
 
-import less from './style/test.less';
-import {Input,Form,BigForm, Select, Image} from '../components/form/form'
-// let TestForm = BigForm(Form);
-import {Me,Login} from '../components/dialog/me/me';
-export default class Test extends React.Component
+import React, { Children } from 'react';
+import { render } from 'react-dom';
+import { Link } from 'react-router-dom'
+import axios from 'axios';
+import less from './test.less';
+import withData from 'Components/withData/withData'
+import withDialog from 'Components/withDialog/withDialog'
+import PageTurner from 'Components/PageTurner/PageTurner'
+import {Form, ImageToBase64,Input } from 'Components/Form/Form';
+import InformWithDialog from 'Components/InformWithDialog/InformWithDialog'
+
+
+let CACHE = GLOBAL_CACHE.get("TEST_VIDEO_LIST",{
+    videoList:[],
+    pageIndex:0
+})
+export class Test extends React.Component
 {
-    state={
-        src:""
-    }
     constructor(props){
         super(props)
-        this.form=React.createRef();
-    }
-    onSubmit=()=>{
-        let form = this.form.current;
-        let data = new FormData(form);
-        console.log(data);
-        console.log(form.getValues());
-        window.open(url)
-    }
-    onChange=(e)=>{
-        let fileObj = e.nativeEvent.target.files[0];
-        let reader = new FileReader();
-        reader.readAsDataURL(fileObj)
-        reader.onload = (e)=>{
-            let str = e.target.result;
-            // let obj = str.split(",");
-            // this.props.setFormState(this.props.name,obj[1])
-            this.setState({
-                src:str
-            })
-            console.log(this.state.src);
+        this.state={
+            page:1
         }
+        this.pageTurner = React.createRef();
     }
-    download=(e)=>{
-      let fileObj = e.nativeEvent.target.files[0];
-      console.log(fileObj)
-      // let reader = new FileReader();
-      // reader.readAsDataURL(fileObj)
-      // reader.onload = (e)=>{
-      //     let str = e.target.result;
-      //     let obj = str.split(",");
-      //     this.props.setformstate(this.props.name,obj[1])
-      // }
+    getDataBefore = () => {
+        this.setState(prev=>({
+            page:prev.page-1
+        }),()=>{this.list.getData("before")})
     }
+    getDataAfter =()=> {
+        this.setState(prev=>({
+            page:prev.page+1
+        }),()=>{this.list.getData("after")})
+    }
+    
     render(){
-        return(
+        return( 
             <div>
-                <Form ref={this.form}>
-                    <div>
-                        <Input type="text" name="name" id="name" /><label for="name">name</label>
-                    </div>
-                    <div >
-                        <Input type="text" name="password"/><label>password</label>
-                    </div>
-                    <div className={less.tag}>
-                        <Input type="radio" name="radio" value="1" id="1"/><label for="1">1</label>
-                        <Input type="radio" name="radio" value="2" id="2"/><label for="2">2</label>
-                    </div>
-                    <Input type="date" name="date" />
-                    <Input type="file" name="file" accept="video/*"  capture="camcorder"/>
-                    
-                    <div>
-                    <div className={less.tag}>
-                        <Input type="checkbox" name="checkbox1" value="ss" id="ss"/><label for="ss">ss</label>
-                    </div>
-                    <div className={less.tag}>
-                        <Input type="checkbox" name="checkbox1" value="dd" id="dd"/><label for="dd">dd</label>
-                    </div>
-                    <div className={less.tag}>
-                        <Input type="checkbox" name="checkbox1" value="ss" id="aa"/><label for="aa">ssaa</label>
-                    </div>
-                    <div className={less.tag}>
-                        <Input type="checkbox" name="checkbox1" value="dd" id="bb"/><label for="bb">bb</label>
-                    </div>
-                    <div className={less.tag}>
-                        <Input type="checkbox" name="checkbox1" value="ss" id="cc"/><label for="cc">cc</label>
-                    </div>
-                    <div className={less.tag}>
-                        <Input type="checkbox" name="checkbox1" value="dd" id="zz"/><label for="zz">zz</label>
-                    </div>
-                    </div>
-                    <input type="file" name="file" accept="video/*" onChange={this.download} capture="camcorder" />
-                    <Select  name="select">
-                        <option value="123" >123</option>
-                        <option value="234">234</option>
-                    </Select>
-                    {/* <image src={this.state.src}></image>
-                    <Input type="file" name="image" onChange={this.onChange}/> */}
-                    <Image name="image"/>
+                <Link to="/">Home</Link>
+                <div onTouchEnd={this.getDataBefore}>getDataBefore</div>
+                <div onTouchEnd={this.getDataAfter}>getDataAfter</div>
+                <InformWithDialog>举报</InformWithDialog>
+                <PageTurner
+                    style={{display:"flex",maxHeight:"400px"}} 
+                    // ref={TurnPage=>{this.TurnPage = TurnPage}}
+                    ref={this.pageTurner}
+                >
+                    <ListWithVideo ref={list=>this.list=list} isAutoGet={0} page={this.state.page}></ListWithVideo> 
+                </PageTurner>
+                <Form>
+                {form=>(
+                    <React.Fragment>
+                        <Input name="test" onChange={form.bindData}/>
+                        <ImageToBase64 style={{width:"2rem"}} id="testImage" onChange={form.bindValue}></ImageToBase64>
+                        <div onTouchEnd={form.showData}>提交</div>
+                    </React.Fragment>
+                )}
                 </Form>
-                <button onTouchEnd={this.onSubmit}>提交</button>
+            </div>
+        )
+    }
+    isMountList = 0
+    componentDidMount = () => {
+        console.log("Test:componentDidMount")
+        this.isMountList =1;
+    }
+    componentDidUpdate = (prevProps, prevState) => {
+        console.log("Test:componentDidUpdate")
+        if(this.isMountList){
+            this.pageTurner.current.changePageIndex(CACHE.pageIndex)
+            this.isMountList = 0
+        }
+       
+    }
+    componentWillUnmount = () => {
+        console.log("Test:componentWillUnmount")
+        CACHE.pageIndex = this.pageTurner.current.pageIndex
+    }
+    
+    
+}
+
+export class Item extends React.Component{
+    constructor(props) {
+        super(props)
+    }
+    render() {
+        return (
+            <div>
+                <input type="text" name="manss" onChange={this.props.handleChange}/>
             </div>
         )
     }
 }
+
+class List extends React.Component{
+    constructor(props) {
+        super(props)
+    }
+    componentDidMount = () => {
+        //判断缓存
+        console.log("List componentDidMount")
+        console.log(CACHE)
+        if(CACHE.videoList.length>0){
+            //读缓存中的数据生成list
+            console.log('有缓存')
+            this.props.hoc.addData(CACHE.videoList,"after")
+            
+        }else{
+            //请求数据生成list
+            console.log("没缓存")
+            this.props.hoc.getData()
+        }
+    }
+    componentWillUnmount = () => {
+        //存入缓存
+        console.log("List componentWillUnmount")
+        console.log(this.props._data)
+        CACHE.videoList = this.props._data
+        console.log(CACHE)
+    }
+
+    render() {
+        return (
+            <div>
+                {this.props._data.map((value,index)=>{
+                    return <div style={{border:"1px solid black",boxSizing:"border-box"}} key={index}>{value.title}</div>
+                })}
+            </div>
+        )
+    }
+}
+const withVideo = withData(props=>`/api/v1.0/video/?page=${props.page}`)
+const ListWithVideo = withVideo(List)

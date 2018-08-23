@@ -1,0 +1,139 @@
+.userInfo{
+    height: 100vh;
+    width: 100%;
+    .title{
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        // background: #7c6354;
+        background: #454545;
+        font-size: 0.8rem;
+        height: 3rem;
+        color:#F4F4F4;
+        .return{
+            padding: 0.5rem;
+        }
+        .inform{
+            text-align: center;
+            position: absolute;
+            z-index: 100;
+            right: 0;
+            top:0;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 0.1rem 0.2rem;
+            margin: 0.9rem 0.8rem;
+            background: #7c6354;
+            background: #F4F4F4;
+            height: 1rem;
+            width: 1rem;
+            color: #F4F4F4;
+            color: #454545;
+            border: 0;
+            border-radius: 2px;
+        }
+    }
+    .info{
+        box-sizing: border-box;
+        display: flex;
+        flex-flow: column nowrap;
+        width: 100%;
+        height:10rem;
+        
+        background: #c1a075;
+        background: #303030;
+        color: #F4F4F4;
+        padding: 1rem 1rem 0 1rem;
+        .person{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            .profile{
+                flex:1 1 30%;
+                img{
+
+                    width: 3rem;
+                    height: 3rem;
+                    // padding-top: 80%; 
+                    background: #7c6354;
+                    background: #454545;
+                    background: #e2e2e2;
+                    border: #7c6354 0.5rem solid; 
+                    border-radius: 100%;
+                }
+            }
+            .buttonGroup{
+                flex:1 1 70%;
+                display:flex;
+                justify-content:flex-end;
+                .button{
+                    font-size: 0.8rem;
+                    padding: 0.5rem 1.3rem;
+                    margin: auto 5px;
+                    background: #7c6354;
+                    
+                    color: #F4F4F4;
+                    border: 0;
+                    border-radius: 1rem;
+                }
+            }
+            .chat{
+                // display: block;
+                height: 2.4rem;
+                width: 2.4rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 0.2rem;
+                // padding: 1rem;
+                img{
+                    height: 1.5rem;
+                    width: 1.5rem;
+                }
+                background: #7c6354 center;
+                // border: #7c6354 0.5rem solid; 
+                border-radius: 100%;
+            }
+        }
+
+        .autograph{
+            margin: 0.5rem 0;
+        }
+        .label{
+            margin: 0.5rem 0;
+            span{
+                font-size: 0.8rem;
+                display:inline-block;
+                padding:0.1rem 0.3rem;
+                margin:0.2rem 0.5rem 0.2rem 0;
+                background: rgba(255, 189, 128, 0.3);
+            }
+        }
+
+
+    }
+    .video{
+        width: 100%;
+        height: calc(~"100% - 13rem") ;
+
+        .tag{
+            color: #F4F4F4;
+            background: #7c6354;
+            background: #454545;
+            height: 2.5rem;
+            line-height: 2.5rem;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            div{
+                flex:1 1 50%;
+                text-align: center;
+            }
+        }
+        .group{
+            background:#dcd0c0;
+            background: #303030;
+            height: calc(~"100% - 2rem");
+        }
+    }
+}

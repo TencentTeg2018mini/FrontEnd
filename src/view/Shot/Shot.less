@@ -1,0 +1,114 @@
+.shot{
+    background: #c1a075;
+    background: #303030;
+    width:100%;
+    height: 100vh;
+    .video{
+        width:100vw;
+        // height:100vh;
+        transform: rotateY(180deg);
+    }
+    .videoPreview{
+        width:100vw;
+        position: absolute;
+        z-index: 10;
+        transform: rotateY(180deg);
+    }
+    .preview{
+        position: absolute;
+        bottom:7rem;
+        z-index: 100;
+        right: 1rem;
+    }
+    .upload{
+        position: absolute;
+        bottom:4rem;
+        z-index: 100;
+        right: 1rem;
+    }
+
+    .button{
+        display: block;
+        font-size: 0.8rem;
+        padding: 0.5rem 1.5rem;
+        margin: auto 5px;
+        background: #7c6354;
+        // background: #454545;
+        color: #F4F4F4;
+        border: 0;
+        border-radius: 1rem;
+    }
+}
+
+.uploadDialog{
+    width: 100%;
+    height:12rem;
+    background: #c1a075;
+    background: #303030;
+    display: flex;
+    flex-flow: column nowrap;
+    // align-items: stretch;
+    justify-content: center;
+
+    .close{
+        position: absolute;
+        right: 0;
+        top:0;
+        padding: 0.2rem;
+        height: 1.5rem;
+        width:1.5rem;
+    }
+    .form{
+        display: flex;
+        flex-flow: column nowrap;
+        // align-items: stretch;
+        justify-content: center;
+        align-items: center;
+        // align-content: center;
+        select{
+            display: block;
+            text-align: center;
+            text-align-last: center;
+            appearance:none;
+            -moz-appearance:none;
+            -webkit-appearance:none;
+            width: 80%;
+            height: 2rem;
+            font-size:100%;
+            outline: none;
+            border: none;
+            border-radius: 1rem;
+            background: #ddbf99;
+            background: #e2e2e2;
+            margin-bottom: 0.7rem;
+            option{
+                text-align: center;
+            }
+        }
+        input{
+            text-align: center;
+            width: 80%;
+            height: 2rem;
+            font-size:100%;
+            outline: none;
+            border: none;
+            border-radius: 1rem;
+            background: #ddbf99;
+            background: #e2e2e2;
+            margin-bottom: 0.7rem;
+        }
+        .button{
+            display: block;
+            font-size: 0.8rem;
+            padding: 0.5rem 1.5rem;
+            margin: auto 5px;
+            background: #7c6354;
+            // background: #454545;
+            width: 50%;
+            color: #F4F4F4;
+            border: 0;
+            border-radius: 1rem;
+        }
+    }
+
+}

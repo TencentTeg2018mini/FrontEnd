@@ -1,0 +1,46 @@
+.tag{
+    display: inline-block;
+    border: 0;
+    margin: 0.5rem;
+    label{
+        display: block;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 16, 16, 0.2);
+    }
+    input[type="radio"],input[type="checkbox"]{
+        display: none;
+    }
+    input[type="radio"],input[type="checkbox"]:checked + label{
+        background: rgba(174, 0, 255, 0.2);
+    }
+}
+
+.falls{
+    overflow-y: scroll;
+    height: 100vh;
+    touch-action: none;
+    &::-webkit-scrollbar{
+        display: none;
+    }
+}
+
+.dialog{
+    display: flex;
+    height: 30%;
+    width: 100%;
+    background: rgb(219, 219, 219);
+    align-items: center;
+    input{
+        border: 0;
+        width:100%;
+        text-align: center;
+        height: 3rem;
+        font-size: 1rem;
+        background: rgba(219, 219, 219, 0);
+        outline: 0;
+    }
+    input::selection { 
+        // background:lightblue; 
+        display: none;
+    }
+}
