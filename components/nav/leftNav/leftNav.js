@@ -4,38 +4,23 @@ import {render,createPortal} from 'react-dom';
 import less from './leftNav.less';
 import{Link} from 'react-router-dom';
 
-import Comment from '../../dialog/comment/comment';
-import Share from '../../dialog/share/share';
+import CommentWithDialog from 'Components/commentWithDialog/commentWithDialog';
+import withDialog from 'Components/withDialog/withDialog';
+import ShareWithDialog from 'Components/shareWithDialog/shareWithDialog';
+import Like from 'Components/like/like';
+import axios from 'axios';
+import ProfileWithRouter from "Components/ProfileWithRouter/ProfileWithRouter";
+import { withItemFalls,withItemGetter} from 'Components/HOC/HOC';
 
-/**
- * 事件：
-    * 双击（点赞）
-    * 单击（暂停播放）
-    * 上滑（瀑布流）
-    * 下滑（刷新/回退）
-    * 左滑（内容页）
-    * 右滑（回退）
- * 按钮：
-    * 头像（到内容页（播主））
-    * 点赞
-    * 评论（弹窗（评论））
-    * 分享（弹窗（分享））
-    * 原声（到内容页（音乐））
- * 信息
-    * 播主信息（到内容页（播主））
-    * 信息（显示视频详细信息）
-    * 原声信息（到内容页（音乐））
- * 
- */
+//TODO: 优化结构
 export default class LeftNav extends React.Component
 {
-    state={
-        islike:0
-    }
     likeBg = [less.like,less.liked]
     constructor(props){
         super(props);
+        console.log(this.props.info)
     }
+
     like=(e)=>{
         this.props.like();
         if(this.state.islike){
@@ -49,16 +34,23 @@ export default class LeftNav extends React.Component
         }
     }
     render(){
-        return (        
+        return ( 
             <div 
                 className={less.left}
             >
-                <Link to='/user/1' ><div className={less.profile}></div></Link>
-                <div onTouchEnd={this.like} className={this.likeBg[this.state.islike]}></div>
-                <Comment className={less.comment}> </Comment>
-                <Share className={less.share}></Share>
+                <div className={less.item}>
+                    <ProfileWithRouter uid={this.props.info.uploader_uid} ></ProfileWithRouter>
+                </div>
+                <div className={less.item}>
+                    <Like target={['video',this.props.info.vid]} ></Like>
+                </div>
+                <div className={less.item}> 
+                    <CommentWithDialog info={this.props.info} ><div className={less.comment}></div> </CommentWithDialog>
+                </div>
+                <div className={less.item}>
+                    <ShareWithDialog info={this.props.info}><div className={less.share}></div></ShareWithDialog>
+                </div>
                 {/* <div className={less.music}></div> */}
-                
             </div>
         )
     }

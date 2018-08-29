@@ -18,11 +18,23 @@ import Shot from './view/Shot/Shot'
 // import Contact from './view/Contact/Contact'
 import {Test} from './Test'
 
-window.localhost = 'http://47.106.158.125'
-window.videoLocalhost = 'http://10.121.129.146:8081/'
+// window.localhost = 'http://47.106.158.125'
+window.localhost = 'https://192.168.155.1'
+// window.videoLocalhost = 'http://10.121.129.146:8081/'
 // window.videoLocalhost = 'http://192.168.155.1:9091/'
 //TODO: 添加拍摄页
 
+// let CACHE = GLOBAL_CACHE.get("SESSION",{
+//     account:"",
+//     uid:"",
+//     nickname:""
+// })
+
+GLOBAL_CACHE.SESSION = {
+        account:"",
+        uid:"",
+        nickname:""
+}
 //一定是驼峰命名
 export const  { Provider, Consumer } = React.createContext("global");
 export default class App extends React.Component {
@@ -45,6 +57,12 @@ export default class App extends React.Component {
                     isLogin:true,
                     myId:response.data.data.id
                 })
+                GLOBAL_CACHE.SESSION = {
+                    account:response.data.data.account,
+                    uid:response.data.data.id,
+                    nickname:response.data.data.nickname
+                }
+                console.log(GLOBAL_CACHE)
             }else{
                 that.setState({
                     isLogin:false

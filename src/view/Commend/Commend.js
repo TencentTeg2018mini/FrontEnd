@@ -185,4 +185,6 @@ List.defaultProps={
     _data:[],
     _commend:null,
 }
-const withVideo = withData((props)=>`/api/v1.0/video/?page=${props.page}`)
+// /api/v1.0/video/recommend
+// const withVideo = withData((props)=>`/api/v1.0/video/?page=${props.page}`)
+const withVideo = withData((props)=>`/api/v1.0/video/recommend`)

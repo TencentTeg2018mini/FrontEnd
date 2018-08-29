@@ -26,7 +26,6 @@ let CACHE = null;
 let VIDEO_CACHE = GLOBAL_CACHE.get("VIDEOPAGE",{
     videoList:[],
     pageIndex:1,
-    videoIndex:1//播放第几个视频
 })
 
 export default class UserInfo extends React.Component
@@ -59,7 +58,9 @@ export default class UserInfo extends React.Component
         if(Object.keys(CACHE.user).length === 0){
             console.log("没有user")
             let that = this;
-            if(this.props.match.params.uid == "me"){
+            console.log(GLOBAL_CACHE)
+            console.log(GLOBAL_CACHE.SESSION)
+            if(this.props.match.params.uid == "me"||this.props.match.params.uid==GLOBAL_CACHE.SESSION.uid){
                 console.log("自己")
                 this.state={
                     user:{
@@ -67,7 +68,7 @@ export default class UserInfo extends React.Component
                         province: "", 
                         account: "", 
                         tel: "", 
-                        uid: "111111111111111112", 
+                        uid: GLOBAL_CACHE.SESSION.uid, 
                         city: "", 
                         country: "", 
                         age: 15, 
@@ -152,15 +153,18 @@ export default class UserInfo extends React.Component
             }   
         }else{
             console.log("有user")
-
-            if(this.props.match.params.uid == "me"){
+            console.log(GLOBAL_CACHE.SESSION)
+            if(this.props.match.params.uid == "me"||this.props.match.params.uid==GLOBAL_CACHE.SESSION.uid){
                 this.state={
                     user:CACHE.user,
-                    isMe:true
+                    isMe:true,
+                    page:1
                 }
             }else{
                 this.state={
-                    user:CACHE.user
+                    user:CACHE.user,
+                    isMe:false,
+                    page:1
                 }
             }
         }
@@ -174,6 +178,12 @@ export default class UserInfo extends React.Component
             ' /api/v1.0/session'
         ).then(function (response) {
             app.setState({isLogin:false})
+            GLOBAL_CACHE.SESSION = {
+                account:"",
+                uid:"",
+                nickname:""
+            }
+            delete GLOBAL_CACHE.USERINFO_me
             console.log(response);
         }).catch(function (error) {
             console.log(error);
@@ -302,7 +312,7 @@ class List extends React.Component{
 
     render() {
         return (
-            <div>
+            <div style={{display:"flex",flexFlow:"row wrap"}}>
                 {this.props._data.map((gist,index) => {
                     return (
                         <ThumbVideo npr={3} key={index} info={gist} index={index}/>

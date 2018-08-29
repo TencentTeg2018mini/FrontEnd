@@ -29,17 +29,6 @@ export default class Shot extends Component {
         this.blobUrl = null;
         this.g_stream = null
         this.g_recorder = null
-        // var self = document.getElementsByTagName('body')[0];
-        // if (self.requestFullscreen) {
-        //     //html5新增的全屏方法
-        //     self.requestFullscreen();
-        // } else if (self.mozRequestFullScreen) {
-        //     //针对mozlia内核的hack
-        //     self.mozRequestFullScreen();
-        // } else if (self.webkitRequestFullScreen) {
-        //     //针对webkit内核的hack
-        //     self.webkitRequestFullScreen();
-        // }
     }
     componentDidMount = () => {
         this.openCam();
@@ -50,7 +39,7 @@ export default class Shot extends Component {
         console.log(window.screen.width)
         let constraints = { 
             audio: false, 
-            video:{width:height*1.5,height:width*1.5},
+            video:{width:height*1.5,height:width*1.5,facingMode: "environment" },
             frameRate: { ideal: 24, max: 30 } 
         }; 
 
@@ -70,6 +59,9 @@ export default class Shot extends Component {
     }
     startRecording=()=>{
         console.log("开始录制")
+        this.canvas.width = this.video.videoWidth;
+        this.canvas.height =  this.video.videoHeight;
+
         this.setState({
             isPreview:0
         })
@@ -165,10 +157,10 @@ export default class Shot extends Component {
                     poster={this.state.blob.photo}
                 ></video>
                 {this.state.isRecord
-                    ?<div style={{position:"absolute",left:"50%",marginLeft:"-1.5rem",bottom:"2rem",width:"3rem",height:"3rem",backgroundColor:"white",borderRadius:"50%",boxShadow:"0 0 5px red"}} onTouchEnd={this.stopRecording}>{this.state.countdown}</div>
+                    ?<div style={{position:"absolute",left:"50%",marginLeft:"-1.5rem",bottom:"2rem",width:"3rem",height:"3rem",backgroundColor:"white",borderRadius:"50%",boxShadow:"0 0 5px red",textAlign:"center",verticalAlign:"center",lineHeight:"3rem"}} onTouchEnd={this.stopRecording}>{this.state.countdown}</div>
                     :<div style={{position:"absolute",left:"50%",marginLeft:"-1.5rem",bottom:"2rem",width:"3rem",height:"3rem",backgroundColor:"red",borderRadius:"50%",boxShadow:"0 0 5px red"}} onTouchEnd={this.startRecording}></div>
                 }
-                <canvas ref={canvas=>this.canvas = canvas}></canvas>
+                <canvas style={{visibility:"hidden",zIndex:-10,position:"fixed",top:0}} ref={canvas=>this.canvas = canvas}></canvas>
                 <div className={less.preview+" "+less.button} 
                     onTouchEnd={this.preview}
                     style=
@@ -219,7 +211,7 @@ class Upload extends React.Component
     componentWillReceiveProps = (nextProps) => {
         console.log(nextProps)
     }
-    upload = () =>{
+    upload = (e) =>{
         window.navigator.geolocation.getCurrentPosition((pos)=>{
             let that = this
             var crd = pos.coords;
@@ -227,39 +219,50 @@ class Upload extends React.Component
                 title:this.form.state.title,
                 longitude:""+crd.longitude,
                 latitude:""+crd.latitude,
-                tag:this.form.state.tag
+                tag:this.form.state.tag,
+                thumbnail:this.props.blob.photo,
+                file:this.props.blob.data
             }
+            
+            let param = new FormData(); //创建form对象
+
+            param.append('file',this.props.blob.data);
+            param.append('title',this.form.state.title);
+            param.append("longitude", ""+crd.longitude);
+            param.append("latitude", ""+crd.latitude);
+            param.append("tag",this.form.state.tag);
+            param.append("thumbnail",this.props.blob.photo.split(",")[1] );
+
+            // this.loading.open()
+            console.log("Loading")
+            this.loading.open(e)
+            console.log(data)
+            console.log(param)
             axios.post(
                 "/api/v1.0/video/",
-                data
+                param,
+                {
+                    headers:{
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
             ).then((response)=>{
                 console.log(response)
-                let balanceData = {
-                    filename:1+".webm"
-                }
-                axios.put(
-                    // "http://10.208.131.36:8081",
-                    // "http://192.168.155.1:9091",
-                    "/nei",
-                    balanceData
-                ).then((response)=>{
-                    console.log(response)
-                    // TODO: 上传视频
-                }).catch((error)=>{
-                    console.log(error)
-                })
+                that.props.dialog.close(e)
+                that.loading.close(e)
             })
             // this.blob.data
         })
     }
     render() {
         return (
-            <Form className={less.form} ref={form=>{this.form = form}}>
+            <Form className={less.form} ref={form=>{this.form = form}} encType="multipart/form-data">
             {form=>(
                 <React.Fragment>
                     <Input type="text" placeholder="标题"   name="title" onChange={form.bindData}/>
                     <ListWithTag ref={list=>{this.list = list}} bindData={form.bindData}></ListWithTag>
                     <button className={less.button} onTouchEnd={this.upload}>上传</button>
+                    <LoadingWithDialog ref={loading=>{this.loading = loading}}></LoadingWithDialog>
                 </React.Fragment>
             )}
             </Form>
@@ -295,6 +298,24 @@ const withTag = withData((props)=>{
 const ListWithTag = withTag(List);
 
 const UploadWithDialog = withDialog(Upload,{className:less.uploadDialog})
+
+class Loading extends React.Component
+{
+    constructor(props) {
+        super(props)
+        this.state = {
+        }
+    }
+    render() {
+        return (
+            <div>
+                Loading
+            </div>
+        )
+    }
+}
+const LoadingWithDialog = withDialog(Loading,{className:less.loading})
+
 class Download extends React.Component
 {
     constructor(props) {

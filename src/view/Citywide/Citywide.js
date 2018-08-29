@@ -17,64 +17,37 @@ import ThumbVideo from 'Components/ThumbVideo/ThumbVideo'
 //FIXME: 新增的数据需要缓存
 let CACHE = GLOBAL_CACHE.get("CITYWIDE",{
     videoList:[],
-    user:{},
+    point:{
+        lat:null,
+        lng:null
+    }
 })
 let VIDEO_CACHE = GLOBAL_CACHE.get("VIDEOPAGE",{
     videoList:[],
     pageIndex:1,
-    videoIndex:1//播放第几个视频
 })
 export default class Citywide extends React.Component
 {
     constructor(props){
         super(props);
-
+        console.log("——————————————————")
+        console.log("欢迎来到Citywide页") 
         this.state={
             address:"定位中",
             height:50,
 
-            latitude:"22.5379439",
-            longitude:"113.9353733",
+            latitude:null,
+            longitude:null,
             level:8,
             page:1
         }
         this.MapPositionY = 0;
     }
-    componentDidMount = () => {
-        window.navigator.geolocation.getCurrentPosition((pos)=>{
-            let that = this
-            var crd = pos.coords;
-            console.log(crd)
-            this.setState({
-                longitude:""+crd.longitude,
-                latitude:""+crd.latitude
-            },()=>{
-                that.getNewVideo()
-            })
-            // axios.get('https://apis.map.qq.com/ws/geocoder/v1/?location='+crd.latitude+','+crd.longitude+'&key=75BBZ-66QKX-EHO4H-7Z3UU-TGOI3-PGBKZ&get_poi=1')
-            // .then(function (response) {
-            //     that.setState({
-            //         address:response.data.result.address_component.city
-            //     })
-            // })
-            // .catch(function (error) {
-            //   console.log(error);
-            // });
-        })
-
-    }
+    
     onTouchStart = (e) => {
         this.MapPositionY = e.touches[0].pageY
     }
-    handlePositionChange=(map)=>{
-        console.log(map)
-        this.setState({
-            page:1,
-            latitude: ""+map.point.lat,
-            longitude: ""+map.point.lng
-        },()=>{this.getNewVideo()})
-    }
-    onTouchMove = (e) => {
+    moveValve = (e) => {
         //TODO: 不智能，需修改
         //TODO: 在一个16*9的视频上下，添加类似电影胶卷的图样
         let dis =100*(e.touches[0].pageY - this.MapPositionY)/document.body.clientHeight
@@ -84,28 +57,57 @@ export default class Citywide extends React.Component
             height: Math.min( Math.max(0,prev.height+dis) ,95 )
         }})
     }
-    getNewVideo = (func) => {
-        let that = this;
-        this.MapWithVideo.getData("fresh",(data)=>{
-            if(data.data.length<=4){
-                console.log("page不变")
-            }else{
-                that.setState(prev=>{return {
-                    page:prev.page+1
-                }})
-            }
-        });
-        this.ListWithVideo.getData("fresh",(data)=>{
-            if(data.data.length<=4){
-                console.log("page不变")
-            }else{
-                that.setState(prev=>{return {
-                    page:prev.page+1
-                }})
-            }
-            console.log("look me")
-        });
+
+    handlePositionChange=(map)=>{
+        // 当移动位置时，从第一页开始重新获取
+        console.log("当移动位置时，map数据为")
+        console.log(map)
+
+        this.setState({
+            page:1,
+            latitude: ""+map.point.lat,
+            longitude: ""+map.point.lng
+        },()=>
+        {
+            console.log(this.state)
+            this.getNewVideo("fresh")
+        })
     }
+
+    getNewVideo = (direct = "after") => {
+        let that = this;
+
+        this.MapWithVideo.getData(direct,(data)=>
+        {//地图获取数据
+            if(data.data.length==0)
+            {//新获取的数据为0，则不变page
+                console.log("page不变："+ that.state.page)
+            }else
+            {//新获取的数据不为0，则变化page用作下一页
+                that.setState(prev=>{return {
+                    page:prev.page+1
+                }})
+            }
+        });
+        this.ListWithVideo.getData(direct,(data)=>
+        {//列表获取数据
+            if(data.data.length==0)
+            {//新获取的数据为0，则不变page
+                console.log("page不变"+ that.state.page)
+            }else
+            {//新获取的数据不为0，则变化page用作下一页,并给VIDEO页缓存数据
+                that.setState(prev=>{return {
+                    page:prev.page+1
+                }})
+                VIDEO_CACHE.videoList = data;
+                console.log("缓存为")
+                console.log(VIDEO_CACHE)
+                console.log("——————————————")
+            }
+        });
+
+    }
+
     render(){
         let that = this
         return (
@@ -128,7 +130,7 @@ export default class Citywide extends React.Component
                     </ScrollingArea>
                 </div>
                 <div className={less.map} style={{height:(100-this.state.height)+'%'}}>
-                    <div className={less.valve} onTouchStart={this.onTouchStart} onTouchMove={this.onTouchMove}>
+                    <div className={less.valve} onTouchStart={this.onTouchStart} onTouchMove={this.moveValve}>
                     <b>地图</b>
                     {/* <div className={less.position}>
                         <input readOnly="readonly" value={this.state.address}></input>
@@ -148,8 +150,49 @@ export default class Citywide extends React.Component
             </div>
         )
     }
+    componentDidMount = () => {
+        console.log('CITYWIDE第一次渲染完成')
+        let that = this
+        
+        //判断缓存
+        if(CACHE.videoList.length>0||CACHE.point.lat!=null)
+        {//若有缓存
+            console.log('CITYWIDE有缓存,缓存如下')
+            console.log(CACHE)
+            console.log("——————————————————————")
+            this.setState({
+                longitude:CACHE.point.lng,
+                latitude:CACHE.point.lat
+            })
+            this.ListWithVideo.addData(CACHE.videoList)
+            this.MapWithVideo.addData(CACHE.videoList)
+        }
+        else
+        {//若无缓存
+            console.log("CITYWIDE 没缓存")
+            var geolocation = new BMap.Geolocation();
+            geolocation.getCurrentPosition(function(r){
+                that.setState({
+                    longitude:""+r.point.lng,
+                    latitude:""+r.point.lat
+                },()=>{
+                    that.getNewVideo()
+                })
+            })
+        }
+    }
     componentWillUnmount = () => {
-        // CACHE.user = this.state.user
+        // 离开页面时缓存数据
+        CACHE.videoList = this.ListWithVideo.state._data;
+        CACHE.pageIndex = this.state.page;
+        CACHE.point={
+            lat:this.state.latitude,
+            lng:this.state.longitude
+        }
+        console.log("CITYWIDE 离开时的缓存如下")
+        console.log(this.state)
+        console.log(CACHE)
+        console.log("————————————————————————")
     }
 }
 
@@ -189,7 +232,7 @@ class List extends React.Component{
 
     render() {
         return (
-            <div>
+            <div style={{display:"flex",flexFlow:"row wrap"}}>
                 {this.props._data.map((gist,index) => {
                     return (
                         <ThumbVideo npr={2} key={index} info={gist} index={index}/>

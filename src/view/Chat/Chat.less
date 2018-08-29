@@ -1,0 +1,54 @@
+.chat{
+    box-sizing: border-box;
+    height: 100%;
+    width:100%;
+    .header{
+        height: 2rem;
+        width:100%;
+        text-align: center;
+        font-size: 0.8rem;
+        letter-spacing:2px;
+        line-height: 2rem;
+        font-weight: 700;
+        color: #e2e2e2;
+        background: #7c6354;
+        box-shadow:  #7c6354;
+    }
+    .content{
+        padding: 1rem;
+        box-sizing: border-box;
+        height: ~'calc(100% - 5rem)';
+        width:100%;
+        background: #c1a075;
+        .chatItem{
+            box-sizing: border-box;
+            width: 100%;
+            display: flex;
+            margin: 1rem 0;
+            .chatContent{
+                text-align: center;
+                position: relative;
+                padding: 0.5rem 1rem;
+                margin: 0 0.5rem;
+                background: #088cb7;
+                -moz-border-radius: 12px;
+                -webkit-border-radius: 12px;
+                border-radius: 12px;
+                vertical-align:middle;
+            }
+        }
+        .other{
+            flex-flow:row nowrap; 
+        }
+        .self{
+            flex-flow:row-reverse nowrap; 
+        }
+    }
+    .input{
+        position: fixed;
+        z-index: 100;
+        bottom: 0;
+        height: 3rem;
+        width:100%;
+    }
+}

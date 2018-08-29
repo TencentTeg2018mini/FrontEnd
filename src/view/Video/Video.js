@@ -14,8 +14,7 @@ import GoBackWithRouter from 'Components/GoBackWithRouter/GoBackWithRouter'
 
 let CACHE = GLOBAL_CACHE.get("VIDEOPAGE",{
     videoList:[],
-    pageIndex:1,
-    videoIndex:1//播放第几个视频
+    pageIndex:0,
 })
 
 //TODO: 优化结构
@@ -105,6 +104,7 @@ export default class VideoPage extends React.Component
                         uid={this.props.match.params.uid} 
                         ref={(ListWithVideo)=>{this.ListWithVideo = ListWithVideo}}
                         _videoPage={this}
+                        style={{width:"100%"}}
                     />
                 </PageTurner>
                 {/* <BottomNav history={this.props.history}></BottomNav> */}
@@ -135,31 +135,26 @@ class List extends React.Component{
     }
     componentDidMount = () => {
         //判断缓存
-        console.log("List componentDidMount")
-        console.log(CACHE)
-        if(CACHE.videoList.length>0){
-            console.log(CACHE.videoList)
+        console.log("VideoList 初次渲染完成")
+
+        if(CACHE.videoList.length>0)
+        {// 有缓存
+            console.log(CACHE)
             //读缓存中的数据生成list
             console.log('"List有缓存')
             this.props.hoc.addData(CACHE.videoList,"after")
             
-        }else{
+        }
+        else
+        {// 无缓存
             //请求数据生成list
             console.log("List没缓存")
             this.props.hoc.getData()
         }
     }
-    // componentWillUnmount = () => {
-    //     //存入缓存
-    //     console.log("List componentWillUnmount")
-    //     console.log(this.props._data)
-    //     CACHE.videoList = this.props._data
-    //     console.log(CACHE)
-    // }
-
     render() {
         return (
-            <div>
+            <div style={{width:"100%"}}>
                 {this.props._data.map((value,index) => {
                     return (
                         <Video 

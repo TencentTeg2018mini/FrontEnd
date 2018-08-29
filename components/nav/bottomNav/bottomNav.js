@@ -4,7 +4,12 @@ import{Link} from 'react-router-dom';
 import axios from 'axios'
 //css
 import less from './bottomNav.less';
-import Me from '../../dialog/me/me';
+import  SessionGuardWithDialog from 'Components/SessionGuardWithDialog/SessionGuardWithDialog'
+// import  Signin from 'Components/dialog/me/signin';
+// import  More from 'Components/dialog/me/more';
+// import  Tags from 'Components/dialog/me/tags';
+import { withDialog } from 'Components/withDialog/withDialog'
+import {Consumer} from '../../../src/index'
 /**
  * 事件：
     * 双击（点赞）
@@ -26,7 +31,8 @@ import Me from '../../dialog/me/me';
  * 
  */
 
-// axios.defaults.withCredentials=true;
+
+//TODO: 登录后自动刷新页面与状态
 export default class ButtomNav extends React.Component
 {
     constructor(props){
@@ -34,41 +40,30 @@ export default class ButtomNav extends React.Component
         console.log( this.props.history);
         this.me=React.createRef();
     }
-
-    toMe=(e)=>{
-        e.stopPropagation();
-        e.preventDefault();
-        let myHeaders =  new Headers();
-        let that = this;
-        axios.get('/api/v1.0/session',{withCredentials:true})
-        .then(function(response) {
-            console.log(response);
-            if(response.data.code==0){
-                console.log("yes");
-                that.props.history.push("/user/me");
-            }else{
-                // that.setState({
-                //     showMe:"block"
-                // })
-                that.me.current.onOpen();
-            }
-        }).catch(function (error) {
-            console.log(error);
-        });
-        console.log( this.props.history);
-    }
     render(){
-        return (        
-            <div 
-                className={less.bottom}
-            >
-                <Link  to="/"><div>首页</div></Link>
-                <Link  to="/user/me/attention"><div>关注</div></Link>
-                <Link  to="/"><div>+</div></Link>
-                <Link  to="/user/me/message"><div>消息</div></Link>
-                {/* <Link  to="/user/me"><div>我</div></Link> */}
-                <a onTouchEnd={this.toMe}><Me history={this.props.history} ref={this.me}>我</Me></a>
-            </div>
+        return (
+            <Consumer>
+            {app=>
+                <div className={less.bottom + " " + this.props.className} >
+                        {/* <Link  to="/"><div>首页</div></Link> */}
+                        {app.state.isLogin
+                            ?<React.Fragment>
+                                {/* FIXME:点击穿透 */}
+                                <Link  to="/user/me/attention"><div>关注</div></Link>
+                                <Link  to="/shot"><div>+</div></Link>
+                                {/* <Link  to="/user/me/message"><div>消息</div></Link> */}
+                                <Link  to="/user/me">我</Link>
+                            </React.Fragment>
+                            :<React.Fragment>
+                                <SessionGuardWithDialog >关注</SessionGuardWithDialog>
+                                <SessionGuardWithDialog >+ </SessionGuardWithDialog>
+                                {/* <SessionGuardWithDialog check={this.check}>消息</SessionGuardWithDialog> */}
+                                <SessionGuardWithDialog >我</SessionGuardWithDialog>
+                            </React.Fragment>
+                        }
+                </div>                 
+            }  
+            </Consumer>
         )
     }
 }        
